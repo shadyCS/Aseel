@@ -23,13 +23,17 @@ class ProductsOverviewScreen extends StatefulWidget {
 class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> {
   var _isInit = true;
   var _isLoading = false;
+
   @override
   void didChangeDependencies() {
+    final category = ModalRoute.of(context).settings.arguments as String;
     if (_isInit) {
       setState(() {
         _isLoading = true;
       });
-      Provider.of<Products>(context).fetchAndSetProducts().then((value) {
+      Provider.of<Products>(context)
+          .fetchAndSetProducts(category)
+          .then((value) {
         setState(() {
           _isLoading = false;
         });

@@ -8,18 +8,20 @@ class CategoryGird extends StatelessWidget {
   Widget build(BuildContext context) {
     final categories = Provider.of<Categories>(context).categories;
 
-    return GridView.builder(
-      padding: const EdgeInsets.all(10.0),
-      itemCount: categories.length,
-      itemBuilder: (context, index) => ChangeNotifierProvider.value(
-        value: categories[index],
-        child: CategoryItem(),
-      ),
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 1,
-          childAspectRatio: 5 / 2,
-          crossAxisSpacing: 10,
-          mainAxisSpacing: 30),
-    );
+    return categories.isEmpty
+        ? Container()
+        : GridView.builder(
+            padding: const EdgeInsets.all(10.0),
+            itemCount: categories.length,
+            itemBuilder: (context, index) => ChangeNotifierProvider.value(
+              value: categories[index],
+              child: CategoryItem(),
+            ),
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 1,
+                childAspectRatio: 5 / 2,
+                crossAxisSpacing: 10,
+                mainAxisSpacing: 30),
+          );
   }
 }

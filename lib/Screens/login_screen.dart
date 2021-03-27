@@ -1,7 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
-import 'package:shop_app/Screens/products_overview_screen.dart';
+import 'package:shop_app/Screens/categories_screen.dart';
 import 'package:shop_app/Widgets/rounded_button.dart';
 
 import '../constants.dart';
@@ -79,8 +79,9 @@ class _LoginScreenState extends State<LoginScreen> {
                     final loggedUser = await _auth.signInWithEmailAndPassword(
                         email: email.trim(), password: password.trim());
                     if (loggedUser != null) {
-                      Navigator.popAndPushNamed(
-                          context, ProductsOverviewScreen.id);
+                      Navigator.popAndPushNamed(context, CategoriesScreen.id);
+                      userID = loggedUser.user.uid;
+                      print(userID);
                     }
                     setState(() {
                       showSpinner = false;

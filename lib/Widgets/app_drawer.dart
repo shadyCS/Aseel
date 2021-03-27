@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shop_app/Screens/categories_screen.dart';
 import 'package:shop_app/Screens/orders_screen.dart';
 import 'package:shop_app/Screens/products_overview_screen.dart';
 import 'package:shop_app/Screens/user_product_screen.dart';
@@ -18,8 +19,9 @@ class AppDrawer extends StatelessWidget {
             leading: Icon(Icons.shop),
             title: Text('Shop'),
             onTap: () {
-              Navigator.of(context)
-                  .pushReplacementNamed(ProductsOverviewScreen.id);
+              Navigator.of(context).pushReplacementNamed(
+                  ProductsOverviewScreen.id,
+                  arguments: 'All');
             },
           ),
           Divider(),
@@ -36,6 +38,14 @@ class AppDrawer extends StatelessWidget {
             title: Text('Manage Products'),
             onTap: () {
               Navigator.of(context).pushReplacementNamed(UserProductsScreen.id);
+            },
+          ),
+          Divider(),
+          ListTile(
+            leading: Icon(Icons.category),
+            title: Text('Categories'),
+            onTap: () {
+              Navigator.of(context).pushReplacementNamed(CategoriesScreen.id);
             },
           ),
         ],

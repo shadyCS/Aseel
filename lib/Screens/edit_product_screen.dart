@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shop_app/Providers/categories.dart';
 import 'package:shop_app/Providers/product.dart';
 import 'package:shop_app/Providers/products.dart';
+import 'package:shop_app/Widgets/rounded_button.dart';
 import 'package:shop_app/constants.dart';
 
 class EditProductScreen extends StatefulWidget {
@@ -15,6 +17,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
   final _descriptionFocusNode = FocusNode();
   final _imageUrlFocusNode = FocusNode();
   final _imageUrlController = TextEditingController();
+  var dropValue = '';
 
   var _isInit = true;
   String url = '';
@@ -34,6 +37,8 @@ class _EditProductScreenState extends State<EditProductScreen> {
     'description': '',
     'price': '',
     'imageUrl': '',
+    'available': '',
+    'category': ''
   };
 
   var _isLoading = false;
@@ -49,6 +54,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
 
   @override
   void initState() {
+    dropValue = 'Men\'s Fashion';
     _imageUrlFocusNode.addListener(_updateImageUrl);
     super.initState();
   }
@@ -64,8 +70,13 @@ class _EditProductScreenState extends State<EditProductScreen> {
           'title': _editedProduct.title,
           'description': _editedProduct.description,
           'price': _editedProduct.price.toString(),
-          'imageUrl': ''
+          'imageUrl': '',
+          'available': _editedProduct.available.toString(),
+          'category': _editedProduct.category
         };
+        dropValue = _initValues['category'] == null
+            ? 'Men\'s Fashion'
+            : _initValues['category'];
         _imageUrlController.text = _editedProduct.imageUrl;
       }
     }
@@ -81,6 +92,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final categories = Provider.of<Categories>(context);
     return Scaffold(
       appBar: AppBar(
         title: Text('Edit Product'),
@@ -134,7 +146,9 @@ class _EditProductScreenState extends State<EditProductScreen> {
                             imageUrl: _editedProduct.imageUrl,
                             price: value.isEmpty ? null : double.parse(value),
                             isFavorite: _editedProduct.isFavorite,
-                            title: _editedProduct.title);
+                            title: _editedProduct.title,
+                            available: _editedProduct.available,
+                            category: dropValue);
                       },
                     ),
                     TextFormField(
@@ -155,7 +169,8 @@ class _EditProductScreenState extends State<EditProductScreen> {
                             imageUrl: _editedProduct.imageUrl,
                             price: _editedProduct.price,
                             isFavorite: _editedProduct.isFavorite,
-                            title: _editedProduct.title);
+                            title: _editedProduct.title,
+                            category: dropValue);
                       },
                     ),
                     Row(
@@ -190,22 +205,69 @@ class _EditProductScreenState extends State<EditProductScreen> {
                               setState(() {
                                 url = value;
                               });
-                              _saveform();
                             },
                             onSaved: (value) {
                               _editedProduct = Product(
-                                id: _editedProduct.id,
-                                description: _editedProduct.description,
-                                imageUrl: value,
-                                price: _editedProduct.price,
-                                isFavorite: _editedProduct.isFavorite,
-                                title: _editedProduct.title,
-                              );
+                                  id: _editedProduct.id,
+                                  description: _editedProduct.description,
+                                  imageUrl: value,
+                                  price: _editedProduct.price,
+                                  isFavorite: _editedProduct.isFavorite,
+                                  title: _editedProduct.title,
+                                  category: dropValue);
                             },
                           ),
                         )
                       ],
                     ),
+                    TextFormField(
+                      initialValue: _initValues['available'],
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
+                      validator: priceValidator,
+                      decoration: InputDecoration(
+                        labelText: 'Quantity',
+                      ),
+                      keyboardType: TextInputType.number,
+                      onSaved: (value) {
+                        _editedProduct = Product(
+                            id: _editedProduct.id,
+                            description: _editedProduct.description,
+                            imageUrl: _editedProduct.imageUrl,
+                            price: _editedProduct.price,
+                            isFavorite: _editedProduct.isFavorite,
+                            title: _editedProduct.title,
+                            available: int.parse(value),
+                            category: dropValue);
+                      },
+                    ),
+                    DropdownButton(
+                      value: dropValue,
+                      items: categories.dropdownList,
+                      onChanged: (value) {
+                        setState(() {
+                          dropValue = value;
+                          _editedProduct = Product(
+                              id: _editedProduct.id,
+                              description: _editedProduct.description,
+                              imageUrl: _editedProduct.imageUrl,
+                              price: _editedProduct.price,
+                              isFavorite: _editedProduct.isFavorite,
+                              title: _editedProduct.title,
+                              available: _editedProduct.available,
+                              category: dropValue);
+                        });
+                      },
+                    ),
+                    SizedBox(
+                      height: 20,
+                    ),
+                    RoundedButton(
+                      title: 'Save',
+                      color: Colors.deepOrange,
+                      onPressed: () {
+                        _saveform();
+                      },
+                    )
                   ],
                 ),
               ),

@@ -40,7 +40,7 @@ class MyApp extends StatelessWidget {
             primarySwatch: Colors.blueGrey,
             accentColor: Colors.deepOrange,
             brightness: Brightness.dark),
-        initialRoute: CategoriesScreen.id,
+        initialRoute: LoginScreen.id,
         routes: {
           HomeScreen.id: (conext) => HomeScreen(),
           ProductsOverviewScreen.id: (context) => ProductsOverviewScreen(),
