@@ -1,52 +1,119 @@
 import 'package:flutter/material.dart';
 import 'product.dart';
+import 'package:http/http.dart';
+import 'dart:convert';
 
 class Products with ChangeNotifier {
-  List<Product> _items = [
-    Product(
-      id: 'p1',
-      title: 'Red Shirt',
-      description: 'A red shirt - it is pretty red!',
-      price: 29.99,
-      imageUrl:
-          'https://www.joinusonline.net/pub/media/catalog/product/t/s/tshirt_v_neck_red_magic_1_1.jpg',
-    ),
-    Product(
-      id: 'p2',
-      title: 'Trousers',
-      description: 'A nice pair of trousers.',
-      price: 59.99,
-      imageUrl:
-          'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e8/Trousers%2C_dress_%28AM_1960.022-8%29.jpg/512px-Trousers%2C_dress_%28AM_1960.022-8%29.jpg',
-    ),
-    Product(
-      id: 'p3',
-      title: 'Yellow Scarf',
-      description: 'Warm and cozy - exactly what you need for the winter.',
-      price: 19.99,
-      imageUrl:
-          'https://live.staticflickr.com/4043/4438260868_cc79b3369d_z.jpg',
-    ),
-    Product(
-      id: 'p4',
-      title: 'A Pan',
-      description: 'Prepare any meal you want.',
-      price: 49.99,
-      imageUrl:
-          'https://upload.wikimedia.org/wikipedia/commons/thumb/1/14/Cast-Iron-Pan.jpg/1024px-Cast-Iron-Pan.jpg',
-    ),
-  ];
+  List<Product> _items = [];
+  var _showFavorits = false;
 
   List<Product> get items {
     return [..._items];
+  }
+
+  List<Product> get favoriteItems {
+    return _items.where((element) => element.isFavorite).toList();
+  }
+
+  void showFavoritesOnly() {
+    _showFavorits = true;
+    notifyListeners();
+  }
+
+  void showAll() {
+    _showFavorits = false;
+    notifyListeners();
   }
 
   Product findByID(String id) {
     return _items.firstWhere((element) => element.id == id);
   }
 
-  void addProduct() {
-    //_items.add(value);
-    notifyListeners();
+  Future<void> fetchAndSetProducts() async {
+    const url =
+        'https://myshopapp-cd82e-default-rtdb.firebaseio.com/products.json';
+    try {
+      final response = await get(Uri.parse(url));
+      final data = jsonDecode(response.body) as Map<String, dynamic>;
+      final List<Product> loadedProduct = [];
+      data.forEach((productID, productData) {
+        loadedProduct.add(Product(
+          id: productID,
+          title: productData['title'],
+          description: productData['description'],
+          imageUrl: productData['imageUrl'],
+          isFavorite: productData['isFavorite'],
+          price: productData['price'],
+        ));
+      });
+      _items = loadedProduct;
+      notifyListeners();
+    } catch (ex) {}
+  }
+
+  Future<void> addProduct(Product product) async {
+    const url =
+        'https://myshopapp-cd82e-default-rtdb.firebaseio.com/products.json';
+    try {
+      final response = await post(Uri.parse(url),
+          body: jsonEncode({
+            'title': product.title,
+            'description': product.description,
+            'imageUrl': product.imageUrl,
+            'price': product.price,
+            'isFavorite': product.isFavorite
+          }));
+      final newProduct = Product(
+          title: product.title,
+          description: product.description,
+          price: product.price,
+          imageUrl: product.imageUrl,
+          id: jsonDecode(response.body)['name']);
+
+      _items.add(newProduct);
+      _items.insert(0, newProduct);
+      notifyListeners();
+    } catch (ex) {}
+  }
+
+  Future<void> updateProduct(String id, Product product) async {
+    final productIndex = _items.indexWhere((element) => element.id == id);
+    if (productIndex >= 0) {
+      final url =
+          'https://myshopapp-cd82e-default-rtdb.firebaseio.com/products/$id.json';
+      try {
+        final response = await patch(Uri.parse(url),
+            body: jsonEncode({
+              'title': product.title,
+              'description': product.description,
+              'imageUrl': product.imageUrl,
+              'price': product.price,
+            }));
+        _items[productIndex] = product;
+        notifyListeners();
+      } catch (ex) {}
+    } else {
+      print('...');
+    }
+  }
+
+  Future<void> deleteProduct(String id) async {
+    final url =
+        'https://myshopapp-cd82e-default-rtdb.firebaseio.com/products/$id.json';
+    final existingProductIndex =
+        _items.indexWhere((element) => element.id == id);
+    final existingProduct = _items[existingProductIndex];
+    _items.removeAt(existingProductIndex);
+    try {
+      var response = await delete(Uri.parse(url));
+      if (response.statusCode >= 400) {
+        throw "Somthing went wrong";
+      }
+      _items.removeWhere((element) => element.id == id);
+      notifyListeners();
+    } catch (ex) {
+      _items.insert(existingProductIndex, existingProduct);
+      notifyListeners();
+    }
   }
 }

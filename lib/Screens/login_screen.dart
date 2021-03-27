@@ -44,6 +44,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 height: 48.0,
               ),
               TextField(
+                  textAlign: TextAlign.center,
                   style: TextStyle(color: Colors.white),
                   onChanged: (value) {
                     email = value;
@@ -54,6 +55,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 height: 8.0,
               ),
               TextField(
+                  textAlign: TextAlign.center,
                   style: TextStyle(
                     color: Colors.white,
                   ),
@@ -77,7 +79,8 @@ class _LoginScreenState extends State<LoginScreen> {
                     final loggedUser = await _auth.signInWithEmailAndPassword(
                         email: email.trim(), password: password.trim());
                     if (loggedUser != null) {
-                      Navigator.pushNamed(context, ProductsOverviewScreen.id);
+                      Navigator.popAndPushNamed(
+                          context, ProductsOverviewScreen.id);
                     }
                     setState(() {
                       showSpinner = false;

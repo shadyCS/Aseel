@@ -80,7 +80,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     final newUser = await _auth.createUserWithEmailAndPassword(
                         email: email.trim(), password: password.trim());
                     if (newUser != null) {
-                      Navigator.pushNamed(context, ProductsOverviewScreen.id);
+                      Navigator.popAndPushNamed(
+                          context, ProductsOverviewScreen.id);
                     }
                     setState(() {
                       showSpinner = false;
