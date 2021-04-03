@@ -1,10 +1,13 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:shop_app/Screens/categories_screen.dart';
+import 'package:shop_app/Screens/home_screen.dart';
 import 'package:shop_app/Screens/orders_screen.dart';
 import 'package:shop_app/Screens/products_overview_screen.dart';
 import 'package:shop_app/Screens/user_product_screen.dart';
 
 class AppDrawer extends StatelessWidget {
+  final _auth = FirebaseAuth.instance;
   @override
   Widget build(BuildContext context) {
     return Drawer(
@@ -46,6 +49,15 @@ class AppDrawer extends StatelessWidget {
             title: Text('Categories'),
             onTap: () {
               Navigator.of(context).pushReplacementNamed(CategoriesScreen.id);
+            },
+          ),
+          Divider(),
+          ListTile(
+            leading: Icon(Icons.logout),
+            title: Text('Log Out'),
+            onTap: () {
+              _auth.signOut();
+              Navigator.pushReplacementNamed(context, HomeScreen.id);
             },
           ),
         ],

@@ -13,10 +13,18 @@ class CategoriesScreen extends StatefulWidget {
 
 class _CategoriesScreenState extends State<CategoriesScreen> {
   var _isInit = true;
+  var _isLoading = false;
   @override
   void didChangeDependencies() {
     if (_isInit) {
-      Provider.of<Categories>(context).fetchAndSetProducts();
+      setState(() {
+        _isLoading = true;
+      });
+      Provider.of<Categories>(context).fetchAndSetProducts().then((value) {
+        setState(() {
+          _isLoading = false;
+        });
+      });
     }
     _isInit = false;
     super.didChangeDependencies();
@@ -27,6 +35,10 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
     return Scaffold(
         appBar: AppBar(title: Text('MyShop')),
         drawer: AppDrawer(),
-        body: CategoryGird());
+        body: _isLoading
+            ? Center(
+                child: CircularProgressIndicator(),
+              )
+            : CategoryGird());
   }
 }
